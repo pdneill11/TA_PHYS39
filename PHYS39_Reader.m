@@ -1,12 +1,14 @@
 %% Add Chronux to search path
-addpath(genpath('C:\MATLAB\chronux_2_12'))
+% Download here: http://chronux.org/
+% (version 2.12)
+addpath(genpath('C:\chronux_2_12'))
 
 %% Parameters
 fs = 20000;          % Sampling rate (Hz)
 T  = 2;              % Acquisition duration (s)
 Ns = fs * T;         % Total number of frames
 
-device = 'Dev1';     % Configure DAQ in NI MAX
+device = 'Dev1';     % Configure DAQ (data acquisition device) in NI MAX
 ch1 = 'ai0';         % Signals you want to measure should feed into DAQ here
 ch2 = 'ai1';
 
@@ -96,3 +98,4 @@ plot(f, phi, 'k', 'LineWidth', 1.2)
 xlim(fpass)
 ylabel('Phase (rad)')
 xlabel('Frequency (Hz)')
+
