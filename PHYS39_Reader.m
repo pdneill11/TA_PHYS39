@@ -3,20 +3,21 @@
 % (version 2.12)
 addpath(genpath('C:\chronux_2_12'))
 
-%% Parameters
+%% Set parameters, locate, and configure DAQ object
+% Collection parameters
 fs = 20000;          % Sampling rate (Hz)
 T  = 2;              % Acquisition duration (s)
 Ns = fs * T;         % Total number of frames
 
-device = 'Dev1';     % Configure DAQ (data acquisition device) in NI MAX
-ch1 = 'ai0';         % Signals you want to measure should feed into DAQ here
-ch2 = 'ai1';
+% Locating DAQ (data acquisition device)
+device = 'Dev1';     
+ch1 = 'ai1';         % Signals you want to measure should feed into DAQ here (via BNC cables or wires)
+ch2 = 'ai2';
 
-%% Create DAQ object
 d = daq("ni");
 d.Rate = fs;
 
-addinput(d, device, ch1, "Voltage");
+addinput(d, device, ch1, "Voltage");    % Setting up channels one and two to measure voltage
 addinput(d, device, ch2, "Voltage");
 
 %% Acquire data
@@ -24,27 +25,38 @@ disp('Acquiring data...');
 data = read(d, Ns, "OutputFormat", "Matrix");
 disp('Done.');
 
-%% Split channels
+% Split channels
 t = (0:Ns-1)'/fs;
-x1 = data(:,1);
-x2 = data(:,2);
+DCx1 = data(:,1);
+DCx2 = data(:,2);
 
-%% Quick sanity check
+% Plot data
 figure;
 subplot(2,1,1)
-plot(t, x1)
+plot(t, DCx1)
 ylabel('V'); title('Signal 1')
 
 subplot(2,1,2)
-plot(t, x2)
+plot(t, DCx2)
 ylabel('V'); xlabel('Time (s)')
 title('Signal 2')
 
-%% Remove DC offset
-x1 = detrend(x1, 'constant');
-x2 = detrend(x2, 'constant');
+%% Remove DC offset and plot again
+x1 = detrend(DCx1, 'constant');
+x2 = detrend(DCx2, 'constant');
 
-%% Optional: band-limit to avoid garbage
+% Plot data
+figure;
+subplot(2,1,1)
+plot(t, DCx1)
+ylabel('V'); title('Signal 1')
+
+subplot(2,1,2)
+plot(t, DCx2)
+ylabel('V'); xlabel('Time (s)')
+title('Signal 2')
+
+%% Optional: band-limit
 bp = designfilt('bandpassiir', ...
     'FilterOrder', 6, ...
     'HalfPowerFrequency1', 1, ...
@@ -98,4 +110,5 @@ plot(f, phi, 'k', 'LineWidth', 1.2)
 xlim(fpass)
 ylabel('Phase (rad)')
 xlabel('Frequency (Hz)')
+
 
